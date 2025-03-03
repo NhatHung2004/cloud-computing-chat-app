@@ -14,4 +14,9 @@ export class MessageController {
     async getMessages(@Param('senderId') senderId: string, @Param('receiverId') receiverId: string) {
         return this.messageService.getMessages(senderId, receiverId);
     }
+
+    @Get()
+    async getAllMessages() {
+        return this.messageService.getAllMessages();
+    }
 }
