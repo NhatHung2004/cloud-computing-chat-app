@@ -19,4 +19,8 @@ export class MessageService {
             ]
         }).sort({ createdAt: 1 }).exec();
     }
+
+    async getAllMessages(): Promise<Message[]> {
+        return this.messageModel.find().exec();
+    }
 }
