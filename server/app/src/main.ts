@@ -14,7 +14,6 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('swagger', app, document);
 
-    // Kích hoạt CORS để client có thể kết nối từ domain khác
     app.enableCors();
 
     await app.listen(3000);
