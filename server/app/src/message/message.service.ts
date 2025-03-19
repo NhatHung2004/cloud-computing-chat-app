@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { Message, MessageDocument } from "./message.schema";
+import { Message } from "./message.schema";
 
 @Injectable()
 export class MessageService {
-    constructor(@InjectModel(Message.name) private messageModel: Model<MessageDocument>) { }
+    constructor(@InjectModel(Message.name) private messageModel: Model<Message>) { }
 
     async saveMessage(senderId: string, receiverId: string, message: string): Promise<Message> {
         return this.messageModel.create({ senderId, receiverId, message });
