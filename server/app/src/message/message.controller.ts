@@ -1,13 +1,16 @@
 import { Controller, Post, Get, Body, Param } from '@nestjs/common';
 import { MessageService } from './message.service';
+import { ApiTags } from '@nestjs/swagger';
+import { SendMessageDto } from 'src/dto/send-message.dto';
 
+@ApiTags('messages')
 @Controller('messages')
 export class MessageController {
     constructor(private readonly messageService: MessageService) { }
 
     @Post()
-    async sendMessage(@Body() body: { senderId: string; receiverId: string; message: string }) {
-        return this.messageService.saveMessage(body.senderId, body.receiverId, body.message);
+    async sendMessage(@Body() sendMessageDto: SendMessageDto) {
+        return this.messageService.saveMessage(sendMessageDto.senderId, sendMessageDto.receiverId, sendMessageDto.message);
     }
 
     @Get(':senderId/:receiverId')

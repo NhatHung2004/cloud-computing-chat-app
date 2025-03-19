@@ -1,10 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type MessageDocument = Message & Document;
-
 @Schema({ timestamps: true }) // Đánh dấu là một Schema trong MongoDB
-export class Message {
+class Message extends Document {
     @Prop({ required: true })
     senderId: string;
 
@@ -15,4 +13,9 @@ export class Message {
     message: string;
 }
 
-export const MessageSchema = SchemaFactory.createForClass(Message);
+const MessageSchema = SchemaFactory.createForClass(Message);
+
+export {
+    MessageSchema,
+    Message
+}
