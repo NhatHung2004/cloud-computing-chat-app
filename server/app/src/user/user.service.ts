@@ -24,6 +24,7 @@ export class UserService {
         if (!user) {
             throw new Error(`User with ID ${id} not found`);
         }
+
         return user;
     }
 }
