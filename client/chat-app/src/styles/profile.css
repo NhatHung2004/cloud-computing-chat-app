@@ -1,0 +1,191 @@
+/* Container chính */
+.container2 {
+    background: rgba(255, 255, 255, 255);
+    /* Chiếm toàn bộ chiều cao màn hình */
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    transition: margin-left 0.3s ease-in-out;
+    flex-grow: 1;
+}
+
+/* Container bên trong */
+.insideContainer2 {
+    display: flex;
+    flex-direction: row;
+    padding: 1%;
+    /* Padding tương đối */
+    flex-grow: 1;
+    /* Chiếm toàn bộ không gian còn lại sau NavBar */
+    width: calc(100% - 1%);
+    /* Đảm bảo nội dung không bị tràn */
+    max-width: calc(100% - 1%);
+}
+
+.profileTitle {
+    font-family: var(--font-akshar);
+    font-size: clamp(20px, 2.5vw, 29px);
+    color: rgba(32, 34, 52, 255);
+    padding-left: 1.5%;
+}
+
+.optionProfileContainer {
+    background: rgba(255, 255, 255, 255);
+    border: 1px solid rgba(235, 237, 238, 255);
+    border-radius: 2.5%;
+    display: flex;
+    flex-direction: column;
+    padding: 1%;
+    /* Padding tương đối */
+    margin-top: 0.7%;
+    flex-grow: 1;
+    margin-left: 1%;
+    /* Chiếm toàn bộ không gian còn lại sau NavBar */
+    width: calc(100% - 75%);
+    /* Đảm bảo nội dung không bị tràn */
+    max-width: calc(100% - 75%);
+    box-shadow: 0 0 10px #DDDDDD;
+    border: 1px solid #DDDDDD;
+    align-items: center;
+}
+
+.infoOptionContainer {
+    background: rgba(255, 255, 255, 255);
+    border: 1px solid rgba(235, 237, 238, 255);
+    border-radius: 2%;
+    display: flex;
+    flex-direction: column;
+    padding: 1%;
+    flex-grow: 1;
+    /* Padding tương đối */
+    margin-top: 0.7%;
+    margin-left: 1.5%;
+    /* Chiếm toàn bộ không gian còn lại sau NavBar */
+    width: calc(100% - 20%);
+    /* Đảm bảo nội dung không bị tràn */
+    max-width: calc(100% - 20%);
+    box-shadow: 0 0 10px #DDDDDD;
+    border: 1px solid #DDDDDD;
+}
+
+/* Sửa lại pictureCircle */
+.pictureCircle {
+    width: 95%;
+    height: 250px;
+    padding-bottom: 80%;
+    /* Giữ tỉ lệ 1:1 */
+    position: relative;
+    border-radius: 2.5%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.nameOption {
+    color: black;
+    font-family: var(--font-andada-pro);
+    font-weight: bold;
+    margin-top: 6%;
+    font-size: 20px;
+    margin-right: auto;
+    margin-left: 2%;
+}
+
+.profileOption {
+    color: #6e6565;
+    margin-top: 10%;
+    cursor: pointer;
+    margin-right: auto;
+    margin-left: 5%;
+}
+
+.profileOption:hover {
+    font-size: large;
+    background: linear-gradient(180deg, #5E78A6 0%, #5E78A6 50%, #353A5F 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+.infoOptionTitle {
+    display: flex;
+    justify-content: space-between;
+}
+
+.nameOption.myprofileText {
+    margin-top: 2%;
+}
+
+.editMyProfileText {
+    margin-left: auto;
+    color: black;
+    font-family: var(--font-andada-pro);
+    font-weight: bold;
+    font-size: 17px;
+    margin-top: 2%;
+    color: #5E78A6;
+    cursor: pointer;
+    margin-right: 2%;
+}
+
+.editMyProfileText:hover {
+    font-size: 20px;
+    background: linear-gradient(180deg, #5E78A6 0%, #5E78A6 50%, #353A5F 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+.infoOptionTitle.nameRowContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    margin-top: 2%;
+}
+
+.columnInfo {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+}
+
+.nameOption.fnTitleText {
+    color: #b8b8b8;
+    font-size: 15px;
+    margin-top: 4%;
+}
+
+.nameOption.fnText {
+    font-size: 15px;
+    margin-top: 4%;
+}
+
+.nameOption.backIcon {
+    margin-top: 2%;
+    margin-right: 0;
+    cursor: pointer;
+}
+
+.editInfoInput {
+    background-color: white;
+    outline: none;
+    color: black;
+    width: 50%;
+    margin-left: 2%;
+    margin-top: 1%;
+    border: 1px solid #ccc;
+    /* Viền nhẹ */
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.required {
+    color: #FF0000;
+    font-weight: bold;
+}
