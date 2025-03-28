@@ -27,7 +27,7 @@ const registerPage = () => {
                 <button className='btnCreate'>Sign Up</button>
                 <div className='groupText'>
                     <p className='textLabel text2'>Already have an account?</p>
-                    <Link href={"/Login"} className='textLabel text2' >Sign In</Link>
+                    <Link href={"/login"} className='textLabel text2' >Sign In</Link>
                 </div>
 
             </div>

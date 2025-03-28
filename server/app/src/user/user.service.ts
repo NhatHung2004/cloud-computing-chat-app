@@ -17,4 +17,5 @@ export class UserService {
     async getUsers(): Promise<User[]> {
         return this.userModel.find().exec();
     }
+    
 }
