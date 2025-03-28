@@ -1,0 +1,190 @@
+.containerMessage {
+    background: rgba(255, 255, 255, 255);
+    /* Chiếm toàn bộ chiều cao màn hình */
+    display: flex;
+    flex-direction: row;
+    font-family: Arial, sans-serif;
+    transition: margin-left 0.3s ease-in-out;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+.userContainer {
+    background: rgba(255, 255, 255, 255);
+    border: 1px solid rgba(235, 237, 238, 255);
+    border-radius: 2%;
+    display: flex;
+    flex-direction: column;
+    padding: 1%;
+    /* Padding tương đối */
+    flex-grow: 1;
+    margin-left: 1%;
+    margin-bottom: 1%;
+    /* Chiếm toàn bộ không gian còn lại sau NavBar */
+    width: calc(100% - 70%);
+    /* Đảm bảo nội dung không bị tràn */
+    max-width: calc(100% - 70%);
+    box-shadow: 0 0 10px #DDDDDD;
+}
+
+.messageContainer {
+    background: rgba(255, 255, 255, 255);
+    border: 1px solid rgba(235, 237, 238, 255);
+    border-radius: 2%;
+    display: flex;
+    flex-direction: column;
+    padding: 1%;
+    flex-grow: 1;
+    margin-bottom: 1%;
+    /* Padding tương đối */
+    margin-left: 1%;
+    /* Chiếm toàn bộ không gian còn lại sau NavBar */
+    width: calc(100% - 32.9%);
+    /* Đảm bảo nội dung không bị tràn */
+    max-width: calc(100% - 32.9%);
+    box-shadow: 0 0 10px #DDDDDD;
+}
+
+.messageTitle {
+    font-family: var(--font-akshar);
+    font-size: clamp(20px, 2.5vw, 29px);
+    color: rgba(32, 34, 52, 255);
+    padding-left: 4%;
+    margin-top: 1%;
+}
+
+.searhBox {
+    background: rgba(235, 237, 238, 255);
+    border: none;
+    outline: none;
+    color: black;
+    margin-top: 4%;
+    padding: 2%;
+    margin-left: 2.5%;
+    width: 90%;
+    height: 45px;
+    border: 1px solid white;
+    border-radius: 11px;
+    white-space: nowrap;
+}
+
+
+.searhBox::placeholder {
+    color: rgba(187, 188, 192, 255);
+}
+
+.searhBox:focus::placeholder {
+    opacity: 0;
+}
+
+.userItemContainer {
+    display: flex;
+    flex-direction: column;
+    margin-top: 6%;
+    width: 100%;
+    cursor: pointer;
+    overflow-y: auto;
+    /* Tạo thanh cuộn dọc */
+    /* Tạo khoảng cách giữa các phần tử */
+    max-height: 77vh;
+    /* Giới hạn chiều cao để thanh cuộn hoạt động */
+    padding-right: 5px;
+    /* Để tránh bị che mất nội dung khi có thanh cuộn */
+}
+
+
+/* Ẩn thanh cuộn trên các trình duyệt hiện đại */
+.userItemContainer::-webkit-scrollbar {
+    width: 8px;
+}
+
+.userItem {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 4%;
+    gap: 10px;
+    /* Tạo khoảng cách giữa các phần tử */
+}
+
+.userItem:hover {
+    background-color: #DDDDDD;
+}
+
+.userAvt {
+    border-radius: 50%;
+}
+
+.textPart {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.userName {
+    font-weight: bold;
+    color: rgba(57, 57, 77, 255);
+    margin-bottom: 2%;
+}
+
+.userMessage {
+    color: rgba(106, 106, 114, 255);
+    opacity: 0.5;
+    white-space: nowrap;
+    /* Ngăn xuống dòng */
+    overflow: hidden;
+    /* Ẩn phần bị tràn */
+    text-overflow: ellipsis;
+    /* Hiển thị dấu '...' khi vượt quá */
+    max-width: 80%
+}
+
+.userTime {
+    display: block;
+    margin-bottom: auto;
+    margin-left: auto;
+    font-size: 15px;
+    color: rgba(106, 106, 114, 255);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+    .containerMessage {
+        flex-direction: column;
+    }
+
+    .userContainer,
+    .messageContainer {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0;
+        height: 100vh;
+        position: relative;
+    }
+
+    .mobileBackButton {
+        display: flex;
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+}
+
+/* Desktop styles */
+@media (min-width: 769px) {
+    .mobileBackButton {
+        display: none;
+    }
+}
+
+.userContainer,
+.messageContainer {
+    transition: transform 0.3s ease-in-out;
+}

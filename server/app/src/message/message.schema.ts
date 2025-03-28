@@ -4,10 +4,10 @@ import { Document } from 'mongoose';
 @Schema({ timestamps: true }) // Đánh dấu là một Schema trong MongoDB
 class Message extends Document {
     @Prop({ required: true })
-    senderId: string;
+    senderEmail: string;
 
     @Prop({ required: true })
-    receiverId: string;
+    receiverEmail: string;
 
     @Prop({ required: true })
     message: string;

@@ -17,4 +17,14 @@ export class UserService {
     async getUsers(): Promise<User[]> {
         return this.userModel.find().exec();
     }
+
+    // Lấy user theo id
+    async getUserById(id: string): Promise<User> {
+        const user = await this.userModel.findById(id).exec();
+        if (!user) {
+            throw new Error(`User with ID ${id} not found`);
+        }
+
+        return user;
+    }
 }

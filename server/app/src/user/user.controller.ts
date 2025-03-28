@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/dto/create-user.dto';
 
 @ApiTags('user')
@@ -8,18 +8,21 @@ import { CreateUserDto } from 'src/dto/create-user.dto';
 export class UserController {
     constructor(private readonly userService: UserService) { }
 
-    // @Post()
-    // async createUser(@Body() body: { name: string; email: string;  }) {
-    //     return this.userService.createUser(body.name, body.email);
-    // }
-
     @Post()
+    @ApiOperation({ summary: "tạo user", description: "tạo và lưu user vào database" })
     async createUser(@Body() createUserDto: CreateUserDto) {
         return this.userService.createUser(createUserDto.username, createUserDto.email);
     }
 
     @Get()
+    @ApiOperation({ summary: "lấy user", description: "lấy toàn bộ user" })
     async getUsers() {
         return this.userService.getUsers();
+    }
+
+    @Get(':id')
+    @ApiOperation({ summary: "lấy user", description: "lấy user theo id" })
+    async getUserById(@Param('id') id: string) {
+        return this.userService.getUserById(id);
     }
 }
