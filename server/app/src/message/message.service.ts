@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { Message } from "./message.schema";
 import { User } from "src/user/user.schema";
 
@@ -12,18 +12,24 @@ export class MessageService {
     ) { }
 
     // Lưu tin nhắn
-    async saveMessage(senderEmail: string, receiverEmail: string, message: string): Promise<Message> {
+    async saveMessage({ senderEmail, receiverEmail, message, file }): Promise<Message> {
         // Kiểm tra xem người nhận có tồn tại trong database không
         const user = await this.userModel.findOne({ email: receiverEmail }).exec();
         if (!user) {
             throw new Error(`User with email ${receiverEmail} not found`);
         }
 
-        return this.messageModel.create({ senderEmail, receiverEmail, message });
+        return this.messageModel.create({ senderEmail, receiverEmail, message, file });
     }
 
     // Lấy tin nhắn của user hiện tại
-    async getMessages(receiverEmail: string): Promise<Message[]> {
+    async getMessages(receiverId: string): Promise<Message[]> {
+        const user = await this.userModel.findById(receiverId).exec();
+        if (!user) {
+            throw new Error(`User with id ${receiverId} not found`);
+        }
+        const receiverEmail = user.email;
+
         return this.messageModel.find({
             receiverEmail: receiverEmail
         }).sort({ createdAt: -1 }).exec();

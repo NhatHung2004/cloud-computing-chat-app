@@ -7,4 +7,6 @@ export class SendMessageDto {
     receiverEmail: string;
     @ApiProperty()
     message: string;
+    @ApiProperty()
+    file: Buffer | null; // Thay đổi kiểu dữ liệu của file thành Buffer | null
 }
