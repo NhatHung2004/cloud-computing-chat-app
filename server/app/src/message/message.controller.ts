@@ -12,17 +12,12 @@ export class MessageController {
     @Post()
     @UseInterceptors(FileInterceptor('file'))
     @ApiOperation({ summary: "gửi tin nhắn", description: "lưu tin nhắn vào database" })
-    async sendMessage(@Body() sendMessageDto: SendMessageDto, @UploadedFile() file: Express.Multer.File) {
-        const messageData: { senderEmail: string; receiverEmail: string; message: string; file: Buffer | null } = {
+    async sendMessage(@Body() sendMessageDto: SendMessageDto) {
+        const messageData = {
             senderEmail: sendMessageDto.senderEmail,
             receiverEmail: sendMessageDto.receiverEmail,
-            message: sendMessageDto.message,
-            file: null,  // Khởi tạo file là null
+            message: sendMessageDto.message
         };
-        // Kiểm tra nếu có file, thì thêm file vào messageData
-        if (file) {
-            messageData.file = file.buffer;  // Lưu file dưới dạng buffer nếu có
-        }
         return this.messageService.saveMessage(messageData);
     }
 
@@ -30,6 +25,12 @@ export class MessageController {
     @ApiOperation({ summary: "lấy tin nhắn", description: "lấy toàn bộ tin nhắn của user hiện tại" })
     async getMessages(@Param('receiverId') receiverId: string) {
         return this.messageService.getMessages(receiverId);
+    }
+
+    @Get('/sent/:senderId')
+    @ApiOperation({ summary: "lấy tin nhắn", description: "lấy toàn bộ tin nhắn đã gửi của user hiện tại" })
+    async getSentMessages(@Param('senderId') senderId: string) {
+        return this.messageService.getSentMessages(senderId);
     }
 
     @Get()
