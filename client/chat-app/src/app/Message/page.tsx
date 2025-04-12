@@ -1,10 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '@/styles/message.css';
 import Image from 'next/image';
 import { AppSidebar } from "@/components/app-sidebar";
-import { NavActions } from "@/components/nav-actions";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -17,6 +16,9 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useMessages } from "@/hooks/use-getMessage";
+import { useAllUsers } from "@/hooks/use-getAllUser";
+import { useSentMessages } from "@/hooks/use-getSentMessage";
 
 
 
@@ -43,6 +45,35 @@ function useIsMobile() {
 const MessagePage = () => {
     const isMobile = useIsMobile();
     const [selectedUser, setSelectedUser] = React.useState<number | null>(null);
+
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const id = localStorage.getItem('_id');
+        if (id) {
+            setUserId(id);
+        }
+    }, []);
+
+    const { messages, error, isLoading } = useMessages(userId || "");
+
+    const { sent_messages, error: sentM_Error, isLoading: sentM_Loading } = useSentMessages(userId || "");
+
+    const { users, error: userError, isLoading: userLoading } = useAllUsers();
+
+    const allMessages = [...(messages || []), ...(sent_messages || [])];
+
+
+    if (isLoading || userLoading || sentM_Loading) return <div>Loading...</div>;
+    if (error || userError || sentM_Error) return <div>Error occurred: {error.message}</div>;
+    if (!messages || !users || !sent_messages) return <div>No user found.</div>;
+
+    // Hàm để tìm tên người dùng từ email
+    const getUserNameByEmail = (email: string) => {
+        const user = users.find(u => u.email === email);
+        return user ? user.name : email; // Nếu không tìm thấy user, trả về email
+    };
+
 
     return (
         <SidebarProvider>
@@ -71,24 +102,24 @@ const MessagePage = () => {
                             <div className="searchContainer">
                                 <input className="searhBox" type="text" placeholder="🔍 Search" />
                                 <div className="userItemContainer">
-                                    {userItems.map((item, index) => (
+                                    {allMessages.map((item, index) => (
                                         <div
                                             key={index}
                                             className="userItem"
                                             onClick={() => setSelectedUser(index)}
                                         >
-                                            <Image
+                                            {/* <Image
                                                 src={item.avatar}
                                                 alt={`${item.name} icon`}
                                                 width={40}
                                                 height={40}
                                                 className="userAvt"
-                                            />
+                                            /> */}
                                             <div className="textPart">
-                                                <span className="userName">{item.name}</span>
-                                                <span className="userMessage">{item.textMessage}</span>
+                                                <span className="userName">{getUserNameByEmail(item.senderEmail)}</span>
+                                                <span className="userMessage">{item.message}</span>
                                             </div>
-                                            <span className="userTime">{item.time}</span>
+                                            <span className="userTime">{item.createdAt}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -108,7 +139,7 @@ const MessagePage = () => {
                             )}
                             <div>
                                 {selectedUser !== null
-                                    ? userItems[selectedUser].textMessage
+                                    ? messages[0].message
                                     : "Chọn một người dùng để xem tin nhắn"}
                             </div>
                         </div>
