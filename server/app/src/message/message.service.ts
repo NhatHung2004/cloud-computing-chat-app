@@ -12,14 +12,14 @@ export class MessageService {
     ) { }
 
     // Lưu tin nhắn
-    async saveMessage({ senderEmail, receiverEmail, message, file }): Promise<Message> {
+    async saveMessage({ senderEmail, receiverEmail, message }): Promise<Message> {
         // Kiểm tra xem người nhận có tồn tại trong database không
         const user = await this.userModel.findOne({ email: receiverEmail }).exec();
         if (!user) {
             throw new Error(`User with email ${receiverEmail} not found`);
         }
 
-        return this.messageModel.create({ senderEmail, receiverEmail, message, file });
+        return this.messageModel.create({ senderEmail, receiverEmail, message });
     }
 
     // Lấy tin nhắn của user hiện tại
@@ -32,6 +32,18 @@ export class MessageService {
 
         return this.messageModel.find({
             receiverEmail: receiverEmail
+        }).sort({ createdAt: -1 }).exec();
+    }
+
+    // Lấy tin nhắn gửi đi của user hiện tại
+    async getSentMessages(senderId: string): Promise<Message[]> {
+        const user = await this.userModel.findById(senderId).exec();
+        if (!user) {
+            throw new Error(`User with id ${senderId} not found`);
+        }
+        const senderEmail = user.email;
+        return this.messageModel.find({
+            senderEmail: senderEmail
         }).sort({ createdAt: -1 }).exec();
     }
 

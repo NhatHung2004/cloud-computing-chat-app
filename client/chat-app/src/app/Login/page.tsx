@@ -27,7 +27,7 @@ const loginPage = () => {
             console.log('Username:', username);
 
             // Gửi dữ liệu về backend nếu cần
-            const res = await fetch('/api/auth/google', {
+            const res = await fetch('http://localhost:3000/user', {
                 method: 'POST',
                 body: JSON.stringify({ email, username }),
                 headers: { 'Content-Type': 'application/json' }

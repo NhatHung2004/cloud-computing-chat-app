@@ -32,4 +32,14 @@ export class UserService {
         return this.userModel.findOne({ email });
     }
 
+    // Xóa user theo id
+    async deleteUser(id: string): Promise<User> {
+        const user = await this.userModel.findByIdAndDelete(id).exec();
+        if (!user) {
+            throw new Error(`User with ID ${id} not found`);
+        }
+
+        return user;
+    }
+
 }
