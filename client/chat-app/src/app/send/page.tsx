@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react'
 import '@/styles/send.css';
 import Image from 'next/image';
 import { AppSidebar } from "@/components/app-sidebar"
-import { NavActions } from "@/components/nav-actions"
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -17,57 +16,35 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar"
-
-const userItems = Array.from({ length: 10 }, (_, index) => ({
-    avatar: '/avatar.png',
-    name: `Nguyen Van B ${index + 1}`,
-    textMessage: 'ahjndbajdbjabdhjabdhjabdahjdb',
-    time: '5 hour ago'
-}));
+import { sendMessageApi } from "@/lib/sendmessage";
 
 const sendPage = () => {
     const [toEmail, setToEmail] = useState('');
     const [message, setMessage] = useState('');
+    const [userEmail, setUserEmail] = useState<string | null>(null);
 
-    // Hàm xử lý gửi
-    const handleSend = async () => {
-        const senderEmail = localStorage.getItem('email'); // hoặc bạn lưu state login rồi lấy
-        if (!senderEmail) {
-            return;
+    useEffect(() => {
+        const email = localStorage.getItem('email');
+        if (email) {
+            setUserEmail(email);
         }
+    }, []);
 
-        const payload = {
-            senderEmail,
-            receiverEmail: toEmail,
-            message: message,
-        };
-
-        try {
-            const response = await fetch("https://cloud-computing-chat-app-production.up.railway.app/messages", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                console.log("Gửi thành công:", result);
-                alert("Đã gửi tin nhắn!");
+    const handleSend = async (email: String) => {
+        if (userEmail !== email) {
+            const result = await sendMessageApi(toEmail, message);
+            if (result.success) {
+                alert("Gửi thành công");
                 setMessage('');
                 setToEmail('');
             } else {
-                const error = await response.json();
-                console.error("Lỗi gửi tin:", error);
-                alert("Gửi thất bại!");
+                alert(result.error);
             }
-        } catch (err) {
-            console.error("Lỗi kết nối:", err);
-            alert("Không thể kết nối server!");
+        }
+        else {
+            alert("Bạn không thể gửi tin nhắn cho chính mình");
         }
     };
-
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -105,7 +82,7 @@ const sendPage = () => {
                         </div>
                         <span className='line'></span>
                         <div className='buttonContainer'>
-                            <button className='sendButton' onClick={handleSend}>Send</button>
+                            <button className='sendButton' onClick={() => handleSend(toEmail)}>Send</button>
                             <button className='attachButton'>
                                 <Image
                                     className='btnIcon'
