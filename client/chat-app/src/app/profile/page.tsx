@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import '@/styles/profile.css';
 import Image from 'next/image';
 import { AppSidebar } from "@/components/app-sidebar"
-import { NavActions } from "@/components/nav-actions"
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -17,7 +16,6 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { useRouter } from 'next/navigation';
 import { useUser } from "@/hooks/use-getUserById"
 
 

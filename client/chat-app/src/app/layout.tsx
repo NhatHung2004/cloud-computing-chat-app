@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Andada_Pro, Akshar } from "next/font/google";
+import { Geist, Geist_Mono, Andada_Pro } from "next/font/google";
 import "./globals.css";
 import 'typeface-abel';
 
@@ -18,10 +18,10 @@ const andadaPro = Andada_Pro({
   subsets: ["latin"],
 });
 
-const akshar = Akshar({
-  variable: "--font-akshar",
-  subsets: ["latin"],
-});
+// const akshar = Akshar({
+//   variable: "--font-akshar",
+//   subsets: ["latin"],
+// });
 
 export const metadata: Metadata = {
   title: "Login | Cloud Messenger",

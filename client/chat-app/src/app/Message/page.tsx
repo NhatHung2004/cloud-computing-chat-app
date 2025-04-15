@@ -25,12 +25,12 @@ import { useRef } from 'react';
 
 
 
-const userItems = Array.from({ length: 10 }, (_, index) => ({
-    avatar: '/avatar.png',
-    name: `Nguyen Van B ${index + 1}`,
-    textMessage: 'ahjndbajdbjabdhjabdhjabdahjdb',
-    time: '5 hour ago',
-}));
+// const userItems = Array.from({ length: 10 }, (_, index) => ({
+//     avatar: '/avatar.png',
+//     name: `Nguyen Van B ${index + 1}`,
+//     textMessage: 'ahjndbajdbjabdhjabdhjabdahjdb',
+//     time: '5 hour ago',
+// }));
 
 function useIsMobile() {
     const [isMobile, setIsMobile] = React.useState(false);
