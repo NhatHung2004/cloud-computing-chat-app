@@ -1,10 +1,9 @@
 'use client';
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import '@/styles/send.css';
 import Image from 'next/image';
 import { AppSidebar } from "@/components/app-sidebar"
-import { NavActions } from "@/components/nav-actions"
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -17,15 +16,35 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar"
-
-const userItems = Array.from({ length: 10 }, (_, index) => ({
-    avatar: '/avatar.png',
-    name: `Nguyen Van B ${index + 1}`,
-    textMessage: 'ahjndbajdbjabdhjabdhjabdahjdb',
-    time: '5 hour ago'
-}));
+import { sendMessageApi } from "@/lib/sendmessage";
 
 const sendPage = () => {
+    const [toEmail, setToEmail] = useState('');
+    const [message, setMessage] = useState('');
+    const [userEmail, setUserEmail] = useState<string | null>(null);
+
+    useEffect(() => {
+        const email = localStorage.getItem('email');
+        if (email) {
+            setUserEmail(email);
+        }
+    }, []);
+
+    const handleSend = async (email: String) => {
+        if (userEmail !== email) {
+            const result = await sendMessageApi(toEmail, message);
+            if (result.success) {
+                alert("Gửi thành công");
+                setMessage('');
+                setToEmail('');
+            } else {
+                alert(result.error);
+            }
+        }
+        else {
+            alert("Bạn không thể gửi tin nhắn cho chính mình");
+        }
+    };
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -49,12 +68,21 @@ const sendPage = () => {
                 <div className='container'>
                     <div className='insideContainer'>
                         <div className='inputContainer'>
-                            <input type='text' className='inputEmail' placeholder='To : '></input>
-                            <textarea className='textInput' placeholder='Write something.....'></textarea>
+                            <input type='text'
+                                className='inputEmail'
+                                placeholder='To : '
+                                value={toEmail}
+                                onChange={(e) => setToEmail(e.target.value)}
+                            ></input>
+                            <textarea className='textInput'
+                                placeholder='Write something.....'
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                            ></textarea>
                         </div>
                         <span className='line'></span>
                         <div className='buttonContainer'>
-                            <button className='sendButton'>Send</button>
+                            <button className='sendButton' onClick={() => handleSend(toEmail)}>Send</button>
                             <button className='attachButton'>
                                 <Image
                                     className='btnIcon'
