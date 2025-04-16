@@ -1,7 +1,6 @@
 "use client"
 
 import '@/styles/login.css';
-import Link from 'next/link';
 import Image from "next/image";
 import { useRouter } from 'next/navigation';
 import React from 'react';
@@ -27,11 +26,18 @@ const loginPage = () => {
             console.log('Username:', username);
 
             // Gửi dữ liệu về backend nếu cần
-            const res = await fetch('http://localhost:3000/user', {
+            const res = await fetch('https://cloud-computing-chat-app-production.up.railway.app/user', {
                 method: 'POST',
                 body: JSON.stringify({ email, username }),
                 headers: { 'Content-Type': 'application/json' }
             });
+
+            //Những thứ của người dùng hiện tại 
+            const data = await res.json();
+            localStorage.setItem('_id', data._id);
+            localStorage.setItem('username', data.username);
+            localStorage.setItem('email', data.email);
+            console.log('User data saved:', localStorage.getItem('_id'), localStorage.getItem('username'), localStorage.getItem('email'));
 
             router.push('/Message');
         } catch (error) {
@@ -43,65 +49,19 @@ const loginPage = () => {
 
     return (
         <div className='bg'>
-            <div className='boxLogin'>
-                <div className='logo'></div>
-                <p className='text'>Email</p>
-                <input id='email'
-                    type='text'
-                    className='inputUserName'
-                    placeholder="username@gmail.com"
+            <p className='text'>Get started!</p>
+            <p className='text introduce'>Welcome to message app. Start for free to send your messages and files!</p>
+            <button className='btnLoginWithAnother' onClick={handleGoogleLogin}>
+                <Image
+                    className='btnIcon'
+                    src="/Google.png"
+                    alt="Google icon"
+                    width={25}
+                    height={25}
+                    priority
                 />
-
-                <p className='text'>Password</p>
-                <input id='password'
-                    type='password'
-                    className='inputUserName'
-                    placeholder="Password"
-                />
-
-                <Link href="" className='text forgotPassword' >Forgot Password?</Link>
-                <div className="btnContainerSingIn" >
-                    <button className='btnLogin' onClick={() => router.push('/Message')}>Sign in</button>
-                </div>
-
-                <div className="btnContainerFastSingIn">
-                    <button className='btnLoginWithAnother'
-                        onClick={handleGoogleLogin}>
-                        <Image
-                            className='btnIcon'
-                            src="/Google.png"
-                            alt="Next.js logo"
-                            width={25}
-                            height={25}
-                            priority
-                        />
-                    </button>
-                    <button className='btnLoginWithAnother'>
-                        <Image
-                            className='btnIcon'
-                            src="/GiHub.png"
-                            alt="Next.js logo"
-                            width={25}
-                            height={25}
-                            priority
-                        />
-                    </button>
-                    <button className='btnLoginWithAnother'>
-                        <Image
-                            className='btnIcon'
-                            src="/Fb.png"
-                            alt="Next.js logo"
-                            width={25}
-                            height={25}
-                            priority
-                        />
-                    </button>
-                </div>
-                <div className='btnSignUp'>
-                    <p className='text register'>Don't have an account?</p>
-                    <Link href={"/Register"} className='text register' >Register for free</Link>
-                </div>
-            </div>
+                <p>Login with your Google</p>
+            </button>
         </div >
     );
 }
