@@ -28,6 +28,7 @@
     "passport-google-oauth20": "^2.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "socket.io-client": "^4.8.1",
     "swr": "^2.3.3",
     "tailwind-merge": "^3.0.2",
     "tw-animate-css": "^1.2.4",
