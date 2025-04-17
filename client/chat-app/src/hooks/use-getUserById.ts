@@ -1,16 +1,15 @@
 import useSWR from 'swr';
+import { Apis, USER_ENDPOINTS } from '@/configs/Apis';
 
 const fetchUserById = async (id: string): Promise<IUser> => {
-    const res = await fetch(`https://cloud-computing-chat-app-production.up.railway.app/user/${id}`);
-    if (!res.ok) throw new Error('Failed to fetch user');
-    const user: IUser = await res.json();
-    return user;
+    const res = await Apis.get(USER_ENDPOINTS.byId(id));
+    return res.data;
 };
 
 export function useUser(userId: string) {
     // Nếu không có userId thì không gọi SWR
     const { data, error, isLoading } = useSWR<IUser>(
-        userId ? `/user/${userId}` : null,
+        userId ? USER_ENDPOINTS.byId(userId) : null,
         () => fetchUserById(userId)
     );
     return { user: data, error, isLoading };

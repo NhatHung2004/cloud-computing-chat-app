@@ -1,3 +1,5 @@
+import { Apis, MESSAGE_ENDPOINTS } from '@/configs/Apis';
+
 export async function sendMessageApi(toEmail: string, message: string): Promise<{ success: boolean; error?: string }> {
     const senderEmail = localStorage.getItem('email');
 
@@ -12,22 +14,11 @@ export async function sendMessageApi(toEmail: string, message: string): Promise<
     };
 
     try {
-        const response = await fetch("https://cloud-computing-chat-app-production.up.railway.app/messages", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
+        await Apis.post('/messages', payload);
 
-        const data = await response.json();
-
-        if (response.ok) {
-            return { success: true };
-        } else {
-            return { success: false, error: data.message || "Gửi thất bại!" };
-        }
-    } catch (err) {
-        return { success: false, error: "Không thể kết nối server!" };
+        return { success: true };
+    } catch (err: any) {
+        const errorMessage = err.response?.data?.message || 'Gửi thất bại!';
+        return { success: false, error: errorMessage };
     }
 }
