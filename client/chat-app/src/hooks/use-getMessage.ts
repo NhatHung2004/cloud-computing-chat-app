@@ -1,14 +1,14 @@
 import useSWR from 'swr';
+import { Apis, MESSAGE_ENDPOINTS } from '@/configs/Apis';
 
 // fetch các tin nhắn mà user là người nhận
 const fetchReceivedMessagesByUserId = async (userId: string): Promise<IMessage[]> => {
-    const res = await fetch(`https://cloud-computing-chat-app-production.up.railway.app/messages/user/${userId}`);
-    if (!res.ok) throw new Error('Failed to fetch received messages');
-    return await res.json();
+    const res = await Apis.get(MESSAGE_ENDPOINTS.received(userId));
+    return res.data;
 };
 export function useMessages(userId: string) {
     const { data, error, isLoading, mutate } = useSWR<IMessage[]>(
-        userId ? `/messages/user/${userId}` : null,
+        userId ? MESSAGE_ENDPOINTS.received(userId) : null,
         () => fetchReceivedMessagesByUserId(userId)
     );
     return { messages: data, error, isLoading, mutate };
