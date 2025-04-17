@@ -1,15 +1,14 @@
 import useSWR from 'swr';
+import { Apis, USER_ENDPOINTS } from '@/configs/Apis';
 
 const fetchAllUsers = async (): Promise<IUser[]> => {
-    const res = await fetch(`https://cloud-computing-chat-app-production.up.railway.app/user`);
-    if (!res.ok) throw new Error('Failed to fetch users');
-    const users: IUser[] = await res.json();
-    return users;
+    const res = await Apis.get(USER_ENDPOINTS.all);
+    return res.data;
 };
 
 export function useAllUsers() {
     const { data, error, isLoading } = useSWR<IUser[]>(
-        '/users', // key để cache
+        USER_ENDPOINTS.all, // key để cache
         fetchAllUsers
     );
 
