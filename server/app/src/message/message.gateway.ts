@@ -11,12 +11,11 @@ export class MessageGateway {
 
     // Xử lý khi client gửi message
     @SubscribeMessage('sendMessage')
-    async handleMessage(@MessageBody() data: { senderId: string; receiverId: string; message: string; file: Buffer }) {
+    async handleMessage(@MessageBody() data: { senderId: string; receiverId: string; message: string }) {
         const messageData = {
             senderEmail: data.senderId,
             receiverEmail: data.receiverId,
             message: data.message,
-            file: data.file, // Lưu file dưới dạng buffer
         };
         const savedMessage = await this.messageService.saveMessage(messageData);
 
