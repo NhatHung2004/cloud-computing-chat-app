@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
-import { FileModule } from './file/file.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MessageModule } from './message/message.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -17,7 +16,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         }),
         MessageModule,
         UserModule,
-        FileModule,
     ],
 })
 export class AppModule { }

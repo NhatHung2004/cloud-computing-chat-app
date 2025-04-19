@@ -28,7 +28,7 @@ export class MessageService {
         return new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
                 {
-                    resource_type: "auto",
+                    resource_type: "raw",
                     folder: "chat-app",
                 },
                 (error, result) => {
