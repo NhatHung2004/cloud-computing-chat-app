@@ -11,6 +11,9 @@ class Message extends Document {
 
     @Prop({ required: true })
     message: string;
+
+    @Prop({ required: false })
+    file: string;
 }
 
 const MessageSchema = SchemaFactory.createForClass(Message);

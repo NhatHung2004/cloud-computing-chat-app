@@ -12,12 +12,21 @@ export class MessageController {
     @Post()
     @UseInterceptors(FileInterceptor('file'))
     @ApiOperation({ summary: "gửi tin nhắn", description: "lưu tin nhắn vào database" })
-    async sendMessage(@Body() sendMessageDto: SendMessageDto) {
+    async sendMessage(@Body() sendMessageDto: SendMessageDto, @UploadedFile() file: Express.Multer.File) {
         const messageData = {
             senderEmail: sendMessageDto.senderEmail,
             receiverEmail: sendMessageDto.receiverEmail,
-            message: sendMessageDto.message
+            message: sendMessageDto.message,
+            file: "",
         };
+        if (file) {
+            const data = await this.messageService.uploadFile(file);
+            if (!data) {
+                throw new Error("File upload failed");
+            }
+            // Lưu thông tin file vào database
+            messageData.file = data.file;
+        }
         return this.messageService.saveMessage(messageData);
     }
 

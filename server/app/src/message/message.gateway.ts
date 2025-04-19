@@ -10,16 +10,16 @@ export class MessageGateway {
     constructor(private messageService: MessageService) { }
 
     // Xử lý khi client gửi message
-    @SubscribeMessage('sendMessage')
-    async handleMessage(@MessageBody() data: { senderId: string; receiverId: string; message: string }) {
-        const messageData = {
-            senderEmail: data.senderId,
-            receiverEmail: data.receiverId,
-            message: data.message,
-        };
-        const savedMessage = await this.messageService.saveMessage(messageData);
+    // @SubscribeMessage('sendMessage')
+    // async handleMessage(@MessageBody() data: { senderId: string; receiverId: string; message: string }) {
+    //     const messageData = {
+    //         senderEmail: data.senderId,
+    //         receiverEmail: data.receiverId,
+    //         message: data.message,
+    //     };
+    //     const savedMessage = await this.messageService.saveMessage(messageData);
 
-        // Gửi tin nhắn đến người nhận
-        this.server.emit(`receiveMessage-${data.receiverId}`, savedMessage);
-    }
+    //     // Gửi tin nhắn đến người nhận
+    //     this.server.emit(`receiveMessage-${data.receiverId}`, savedMessage);
+    // }
 }
