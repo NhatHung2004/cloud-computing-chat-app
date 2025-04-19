@@ -2,11 +2,8 @@
 
 import {
   BadgeCheck,
-  Bell,
   ChevronsUpDown,
-  CreditCard,
   LogOut,
-  Sparkles,
 } from "lucide-react"
 
 import {
@@ -30,6 +27,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { useRouter } from 'next/navigation';
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebaseConfig"; // đường dẫn tới file config Firebase của bạn
 
 export function NavUser({
   user,
@@ -42,6 +41,12 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const router = useRouter();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    localStorage.clear(); // hoặc chỉ remove userId, username, email
+    router.push('/Login');
+  };
 
   return (
     <SidebarMenu>
@@ -87,13 +92,10 @@ export function NavUser({
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
+
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>

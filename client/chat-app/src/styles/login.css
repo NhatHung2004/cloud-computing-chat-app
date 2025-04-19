@@ -7,7 +7,7 @@
     justify-content: center;
     font-family: Arial, sans-serif;
     color: white;
-
+    flex-direction: column;
 }
 
 .text_color {
@@ -34,110 +34,36 @@
 }
 
 .text {
-    font-size: 18px;
+    font-size: 100px;
     font-family: 'Abel', sans-serif;
     margin-left: 50px;
+    font-weight: bold;
 }
 
-.boxLogin.text:first-child {
-    margin-top: 50px;
-}
-
-.boxLogin .text:nth-child(4) {
-    margin-top: 25px;
+.introduce {
+    font-size: 20px;
+    font-weight: lighter;
 }
 
 
-.inputUserName {
-    background: #ffffff;
-    position: relative;
-    margin-top: 10px;
-    color: #000000;
-    border: solid white;
-    margin-left: 50px;
-    height: 40px;
-    width: 396px;
-    border: 2px solid white;
-    border-radius: 5px;
-    padding-left: 10px;
-}
-
-.forgotPassword {
-    display: block;
-    font-size: 14px;
-    margin-top: 11px;
-}
-
-.btnContainerSingIn {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.btnLogin {
-    background: #BD0C47;
-    width: 396px;
-    height: 40px;
-    border: none;
-    border: #BD0C47;
-    border-radius: 10px;
-    outline: none;
-    /* Xóa đường viền khi focus */
-    cursor: pointer;
-    /* Thêm con trỏ chuột */
-    transition: all 0.1s ease-in-out;
-    /* Hiệu ứng mượt */
-}
-
-.btnLogin:hover {
-    background: #ee0351;
-}
-
-.btnContainerFastSingIn {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 25px;
-}
 
 .btnLoginWithAnother {
-    background: #FFFFFF;
-    width: 122.5px;
-    height: 42px;
-    border: none;
-    border: #FFFFFF;
-    border-radius: 10px;
-    margin-right: 4px;
-    outline: none;
-    /* Xóa đường viền khi focus */
-    cursor: pointer;
-    /* Thêm con trỏ chuột */
-    transition: all 0.1s ease-in-out;
-    /* Hiệu ứng mượt */
-}
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 
-.btnIcon {
-    margin: 0 auto;
+    background: #FFFFFF;
+    width: 400px;
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid #000;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+    color: #000;
 }
 
 .btnLoginWithAnother:hover {
     background: #D9D9D9;
-}
-
-.btnSignUp {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* Căn giữa theo chiều dọc */
-    gap: 5px;
-    /* Giảm khoảng cách giữa <p> và <Link> */
-    margin-top: 15px;
-}
-
-.register {
-    font-size: 14px;
-    margin: 0px;
-}
-
-.register:last-child {
-    color: #BD0C47;
 }

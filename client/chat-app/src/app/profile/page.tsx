@@ -1,10 +1,9 @@
 'use client';
 
-import React from 'react'
+import React, { useEffect, useState } from 'react';
 import '@/styles/profile.css';
 import Image from 'next/image';
 import { AppSidebar } from "@/components/app-sidebar"
-import { NavActions } from "@/components/nav-actions"
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -17,16 +16,27 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useUser } from "@/hooks/use-getUserById"
 
 
 
 const messagePage = () => {
     const [isOn, setIsOn] = useState(false);
-    const router = useRouter();
-    const [isEditing, setIsEditing] = useState(false);
     const [isSetting, setSetting] = useState(false);
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const id = localStorage.getItem('_id');
+        if (id) {
+            setUserId(id);
+        }
+    }, []);
+
+    const { user, error, isLoading } = useUser(userId || "");
+
+    if (isLoading) return <div>Loading...</div>;
+    if (error) return <div>Error occurred: {error.message}</div>;
+    if (!user) return <div>No user found.</div>;
 
     const toggleSwitch = () => {
         setIsOn(!isOn);
@@ -51,7 +61,7 @@ const messagePage = () => {
                             <BreadcrumbList>
                                 <BreadcrumbItem>
                                     <BreadcrumbPage className="line-clamp-1">
-                                    Profile & Settings
+                                        Profile & Settings
                                     </BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
@@ -74,7 +84,7 @@ const messagePage = () => {
                                     style={{ objectFit: 'cover' }}
                                 />
                             </div>
-                            <span className='nameOption'>Nguyễn Văn B</span>
+                            <span className='nameOption'>{user?.name}</span>
                             <span className='profileOption' onClick={() => setSetting(false)}>Personal Details</span>
                             <span className='profileOption' onClick={() => setSetting(true)}>Settings</span>
                         </div>
@@ -85,107 +95,44 @@ const messagePage = () => {
                                     <span className='nameOption myprofileText'>Settings</span>
                                 ) : (
                                     <>
-                                        {isEditing ? (
-                                            <>
-                                                <span className='nameOption backIcon' onClick={() => setIsEditing(false)}>&lt;</span>
-                                                <span className='nameOption myprofileText'>Edit Profile</span>
-                                            </>
-                                        ) : (
-                                            <span className='nameOption myprofileText'>My Profile</span>
-                                        )}
-                                        {isEditing ? (
-                                            <span className='editMyProfileText' ></span>
-                                        ) : (
-                                            <span className='editMyProfileText' onClick={() => setIsEditing(true)}>Edit</span>
-                                        )}
+                                        <span className='nameOption myprofileText'>My Profile</span>
                                     </>
                                 )}
                             </div>
-                            {isSetting ? (
-                                <span className='editMyProfileText' ></span>
-                            ) : (
-                                <>
-                                    {isEditing ? (
-                                        <>
-                                            <div className='infoOptionTitle nameRowContainer'>
-                                                <div className='columnInfo'>
-                                                    <span className='nameOption fnTitleText'>First Name <span className="required">*</span> </span>
-                                                    <input className='editInfoInput' placeholder='Nguyễn Văn'></input>
-                                                </div>
-                                                <div className='columnInfo'>
-                                                    <span className='nameOption fnTitleText'>Last Name <span className="required">*</span> </span>
-                                                    <input className='editInfoInput' placeholder='B'></input>
-                                                </div>
-                                            </div>
+                            <div className='infoOptionTitle nameRowContainer'>
+                                <div className='columnInfo'>
+                                    <span className='nameOption fnTitleText'>User Name</span>
+                                    <span className='nameOption fnText'>{user.name}</span>
+                                </div>
+                            </div>
 
-                                            <div className='infoOptionTitle nameRowContainer'>
-                                                <div className='columnInfo'>
-                                                    <span className='nameOption fnTitleText'>Email Address</span>
-                                                    <input className='editInfoInput' placeholder='nguynVanB@gmail.com'></input>
-                                                </div>
-                                                <div className='columnInfo'>
-                                                    <span className='nameOption fnTitleText'>Date Of Birth <span className="required">*</span> </span>
-                                                    <input className='editInfoInput' type='date'></input>
-                                                </div>
-                                            </div>
+                            <div className='infoOptionTitle nameRowContainer'>
+                                <div className='columnInfo'>
+                                    <span className='nameOption fnTitleText'>Email Adderss</span>
+                                    <span className='nameOption fnText'>{user.email}</span>
+                                </div>
+                            </div>
 
-                                            <div className='infoOptionTitle nameRowContainer'>
-                                                <div className='columnInfo'>
-                                                    <span className='nameOption fnTitleText'>Gender</span>
-                                                    <select id="gender" className="editInfoInput">
-                                                        <option value="MMale">Male</option>
-                                                        <option value="FFemale">Female</option>
-                                                        <option value="Other">Other</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div className='infoOptionTitle nameRowContainer'>
-                                                <div className='columnInfo'>
-                                                    <span className='nameOption fnTitleText'>First Name</span>
-                                                    <span className='nameOption fnText'>Nguyễn Văn</span>
-                                                </div>
-                                                <div className='columnInfo'>
-                                                    <span className='nameOption fnTitleText'>Last Name</span>
-                                                    <span className='nameOption fnText'>B</span>
-                                                </div>
-                                            </div>
+                            <div className='infoOptionTitle nameRowContainer'>
 
-                                            <div className='infoOptionTitle nameRowContainer'>
-                                                <div className='columnInfo'>
-                                                    <span className='nameOption fnTitleText'>Email Adderss</span>
-                                                    <span className='nameOption fnText'>nguynVanB@gmail.com</span>
-                                                </div>
+                                <div className='columnInfo'>
+                                    <span className='nameOption fnTitleText'>Account Creation Date</span>
+                                    <span className='nameOption fnText'>
+                                        {new Date(user.createdAt).toLocaleDateString('vi-VN', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric',
+                                        })}
+                                    </span>
+                                </div>
+                            </div>
 
-                                                <div className='columnInfo'>
-                                                    <span className='nameOption fnTitleText'>Date of Birth</span>
-                                                    <span className='nameOption fnText'>11/05/2000</span>
-                                                </div>
-                                            </div>
-
-                                            <div className='infoOptionTitle nameRowContainer'>
-                                                <div className='columnInfo'>
-                                                    <span className='nameOption fnTitleText'>Gender</span>
-                                                    <span className='nameOption fnText'>Male</span>
-                                                </div>
-                                                <div className='columnInfo'>
-                                                    <span className='nameOption fnTitleText'>Account Creation Date</span>
-                                                    <span className='nameOption fnText'>20/05/2020</span>
-                                                </div>
-                                            </div>
-
-                                            <div className='infoOptionTitle nameRowContainer'>
-                                                <div className='columnInfo'>
-                                                    <span className='nameOption fnTitleText'>Uid</span>
-                                                    <span className='nameOption fnText'>284782947892</span>
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-                                </>
-                            )}
+                            <div className='infoOptionTitle nameRowContainer'>
+                                <div className='columnInfo'>
+                                    <span className='nameOption fnTitleText'>Uid</span>
+                                    <span className='nameOption fnText'>{user._id}</span>
+                                </div>
+                            </div>
 
                         </div>
                     </div>
