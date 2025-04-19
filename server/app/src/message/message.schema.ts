@@ -9,7 +9,7 @@ class Message extends Document {
     @Prop({ required: true })
     receiverEmail: string;
 
-    @Prop({ required: true })
+    @Prop({ required: false })
     message: string;
 
     @Prop({ required: false })

@@ -16,9 +16,12 @@ export class MessageController {
         const messageData = {
             senderEmail: sendMessageDto.senderEmail,
             receiverEmail: sendMessageDto.receiverEmail,
-            message: sendMessageDto.message,
+            message: "",
             file: "",
         };
+        if (sendMessageDto.message) {
+            messageData.message = sendMessageDto.message;
+        }
         if (file) {
             const data = await this.messageService.uploadFile(file);
             if (!data) {
