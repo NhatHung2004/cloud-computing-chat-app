@@ -1,3 +1,5 @@
+'use client';
+
 import useSWR from 'swr';
 import { Apis, USER_ENDPOINTS } from '@/configs/Apis';
 

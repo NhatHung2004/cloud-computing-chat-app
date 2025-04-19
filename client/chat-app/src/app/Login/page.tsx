@@ -5,8 +5,9 @@ import Image from "next/image";
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { auth, provider, signInWithPopup } from '@/lib/firebaseConfig';
+import { Apis, USER_ENDPOINTS } from '@/configs/Apis';
 
-const loginPage = () => {
+const LoginPage = () => {
     const router = useRouter();
 
     const handleGoogleLogin = async () => {
@@ -19,27 +20,28 @@ const loginPage = () => {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
 
+            const photoURL = user.photoURL;
+
             const email = user.email;
             const username = user.displayName;
 
             console.log('Email:', email);
             console.log('Username:', username);
 
-            // Gửi dữ liệu về backend nếu cần
-            const res = await fetch('https://cloud-computing-chat-app-production.up.railway.app/user', {
-                method: 'POST',
-                body: JSON.stringify({ email, username }),
-                headers: { 'Content-Type': 'application/json' }
+            const res = await Apis.post(USER_ENDPOINTS.create, {
+                email,
+                username
             });
 
             //Những thứ của người dùng hiện tại 
-            const data = await res.json();
+            const data = await res.data;
             localStorage.setItem('_id', data._id);
             localStorage.setItem('username', data.username);
             localStorage.setItem('email', data.email);
+            localStorage.setItem('photoURL', photoURL ? photoURL : '');
             console.log('User data saved:', localStorage.getItem('_id'), localStorage.getItem('username'), localStorage.getItem('email'));
 
-            router.push('/Message');
+            router.push('/message');
         } catch (error) {
             console.error('Login failed:', error);
             alert('Đăng nhập bằng Google thất bại');
@@ -66,4 +68,4 @@ const loginPage = () => {
     );
 }
 
-export default loginPage
+export default LoginPage

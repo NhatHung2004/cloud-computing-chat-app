@@ -1,16 +1,16 @@
-/* Container chính */
-.container {
-    background: rgba(255, 255, 255, 255);
-    /* Chiếm toàn bộ chiều cao màn hình */
+.containerSend {
+    background: rgba(255, 255, 255, 1);
     display: flex;
     flex-direction: column;
     font-family: Arial, sans-serif;
     transition: margin-left 0.3s ease-in-out;
     flex-grow: 1;
+    overflow-x: hidden;
+    height: 100vh;
 }
 
 /* Container bên trong */
-.insideContainer {
+.insideContainerSend {
     background: rgba(255, 255, 255, 255);
     border: 1px solid rgba(235, 237, 238, 255);
     border-radius: 1%;
@@ -25,6 +25,8 @@
     /* Đảm bảo nội dung không bị tràn */
     max-width: 98%;
     box-shadow: 0 0 10px #DDDDDD;
+    box-sizing: border-box;
+    margin-bottom: 5%;
 }
 
 .inputContainer {
@@ -76,6 +78,7 @@
     /* Không cho thay đổi kích thước */
     text-align: start;
     vertical-align: top;
+    margin-top: 2%;
 }
 
 .textInput:focus {
@@ -84,10 +87,10 @@
 
 .line {
     border: 1px solid #DDDDDD;
-    width: 988%;
+    width: 98%;
     max-width: 98%;
     margin-left: 1.5%;
-    margin-top: 5%;
+    margin-top: 7%;
 }
 
 /* Container cho các nút */
@@ -95,7 +98,7 @@
     display: flex;
     align-items: center;
     margin-left: 1.5%;
-    margin-top: 2%;
+    margin-top: 1%;
     gap: 2%;
     /* Khoảng cách giữa các nút linh hoạt */
 }
@@ -145,4 +148,15 @@
     height: 85%;
     object-fit: contain;
     /* Đảm bảo hình ảnh không bị méo */
+}
+
+.file_Container {
+    background-color: #C0C0C0;
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    height: 3em;
+    margin-left: 1.5%;
+    margin-top: 5%;
+    gap: 1%;
 }

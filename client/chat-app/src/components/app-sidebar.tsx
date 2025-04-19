@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import {
@@ -8,7 +8,6 @@ import {
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
-import { NavWorkspaces } from "@/components/nav-workspaces"
 import { TeamSwitcher } from "@/components/team-switcher"
 import { NavUser } from "@/components/nav-user"
 import { useUser } from "@/hooks/use-getUserById"
@@ -61,7 +60,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       {
         title: "Messages",
-        url: "/Message",
+        url: "/message",
         icon: MessageCircle,
         isActive: true,
       },
