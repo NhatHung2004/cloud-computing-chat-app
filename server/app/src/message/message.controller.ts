@@ -28,7 +28,7 @@ export class MessageController {
                 throw new Error("File upload failed");
             }
             // Lưu thông tin file vào database
-            messageData.file = data.file;
+            messageData.file = data;
         }
         return this.messageService.saveMessage(messageData);
     }

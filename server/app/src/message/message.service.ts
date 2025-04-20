@@ -3,8 +3,10 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Message } from "./message.schema";
 import { User } from "src/user/user.schema";
-import { Readable } from "stream";
-import cloudinary from "src/config/config.cloudinary";
+import { v4 as uuid } from "uuid";
+import { s3Client } from "src/config/s3.config";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import * as path from 'path';
 
 @Injectable()
 export class MessageService {
@@ -24,68 +26,63 @@ export class MessageService {
         return this.messageModel.create({ senderEmail, receiverEmail, message, file });
     }
 
-    async uploadFile(file: Express.Multer.File): Promise<{ file: string }> {
-        return new Promise((resolve, reject) => {
-            const uploadStream = cloudinary.uploader.upload_stream(
-                {
-                    resource_type: "raw",
-                    folder: "chat-app",
-                },
-                (error, result) => {
-                    if (error) {
-                        return reject(new Error(error.message));
-                    }
-                    if (!result || !result.secure_url) {
-                        return reject(new Error("Upload failed or no secure URL returned"));
-                    }
-                    resolve({ file: result.secure_url });
-                }
-            );
+    async uploadFile(file: Express.Multer.File): Promise<string> {
+        if (!file || !file.originalname) {
+            throw new Error('Invalid file upload');
+        }
 
-            const readable = new Readable();
-            readable.push(file.buffer);
-            readable.push(null);
-            readable.pipe(uploadStream);
+        const fileExtension = path.extname(file.originalname);
+        const key = `uploads/${uuid()}${fileExtension}`;
+
+        const command = new PutObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: key,
+            Body: file.buffer,
+            ContentType: file.mimetype,
         });
+
+        await s3Client.send(command);
+
+        return `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${key}`;
     }
 
     // Lấy tin nhắn của user hiện tại
-    async getMessages(receiverId: string): Promise < Message[] > {
-            const user = await this.userModel.findById(receiverId).exec();
-            if(!user) {
-                throw new Error(`User with id ${receiverId} not found`);
-            }
+    async getMessages(receiverId: string): Promise<Message[]> {
+        const user = await this.userModel.findById(receiverId).exec();
+        if (!user) {
+            throw new Error(`User with id ${receiverId} not found`);
+        }
         const receiverEmail = user.email;
 
-            return this.messageModel.find({
-                receiverEmail: receiverEmail
-            }).sort({ createdAt: -1 }).exec();
-        }
+        return this.messageModel.find({
+            receiverEmail: receiverEmail
+        }).sort({ createdAt: -1 }).exec();
+    }
 
     // Lấy tin nhắn gửi đi của user hiện tại
-    async getSentMessages(senderId: string): Promise < Message[] > {
-            const user = await this.userModel.findById(senderId).exec();
-            if(!user) {
-                throw new Error(`User with id ${senderId} not found`);
-            }
-        const senderEmail = user.email;
-            return this.messageModel.find({
-                senderEmail: senderEmail
-            }).sort({ createdAt: -1 }).exec();
+    async getSentMessages(senderId: string): Promise<Message[]> {
+        const user = await this.userModel.findById(senderId).exec();
+        if (!user) {
+            throw new Error(`User with id ${senderId} not found`);
         }
+        const senderEmail = user.email;
+        return this.messageModel.find({
+            senderEmail: senderEmail
+        }).sort({ createdAt: -1 }).exec();
+    }
 
     // Lấy tin nhắn theo id
-    async getMessageById(id: string): Promise < Message > {
-            const msg = await this.messageModel.findById(id).exec();
-            if(!msg) {
-                throw new Error(`Message with id ${id} not found`);
-            }
+    async getMessageById(id: string): Promise<Message> {
+        const msg = await this.messageModel.findById(id).exec();
+        if (!msg) {
+            throw new Error(`Message with id ${id} not found`);
+        }
 
         return msg;
-        }
+    }
 
     // Lấy tất cả tin nhắn
-    async getAllMessages(): Promise < Message[] > {
-            return this.messageModel.find().exec();
-        }
+    async getAllMessages(): Promise<Message[]> {
+        return this.messageModel.find().exec();
     }
+}
