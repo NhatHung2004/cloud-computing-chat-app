@@ -2,6 +2,7 @@
 
 import { type LucideIcon } from "lucide-react"
 import { useRouter } from "next/navigation";
+import { usePathname } from 'next/navigation';
 
 import {
   SidebarMenu,
@@ -20,6 +21,7 @@ export function NavMain({
   }[]
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const handleNavigation = (url: string) => {
     router.push(url);
   };
@@ -27,7 +29,10 @@ export function NavMain({
     <SidebarMenu>
       {items.map((item) => (
         <SidebarMenuItem key={item.title}>
-          <SidebarMenuButton asChild isActive={item.isActive}>
+          <SidebarMenuButton
+            asChild
+            isActive={pathname === item.url} // Tự động tính toán isActive
+          >
             <button
               type="button"
               onClick={() => handleNavigation(item.url)}
