@@ -31,7 +31,7 @@ export function NavWorkspaces({
   }[]
 }) {
   return (
-    <SidebarGroup>
+    <SidebarGroup className="mb-4">
       <SidebarGroupLabel>Workspaces</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
