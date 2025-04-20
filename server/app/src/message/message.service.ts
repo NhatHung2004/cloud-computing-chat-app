@@ -26,24 +26,30 @@ export class MessageService {
         return this.messageModel.create({ senderEmail, receiverEmail, message, file });
     }
 
-    async uploadFile(file: Express.Multer.File): Promise<string> {
-        if (!file || !file.originalname) {
-            throw new Error('Invalid file upload');
+    async uploadFile(files: Express.Multer.File[]): Promise<string[]> {
+        if (!files || files.length === 0) {
+            throw new Error('No files uploaded');
         }
 
-        const fileExtension = path.extname(file.originalname);
-        const key = `uploads/${uuid()}${fileExtension}`;
+        const uploadedUrls = await Promise.all(
+            files.map(async (file) => {
+                const fileExtension = path.extname(file.originalname);
+                const key = `uploads/${uuid()}${fileExtension}`;
 
-        const command = new PutObjectCommand({
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: key,
-            Body: file.buffer,
-            ContentType: file.mimetype,
-        });
+                const command = new PutObjectCommand({
+                    Bucket: process.env.AWS_BUCKET_NAME,
+                    Key: key,
+                    Body: file.buffer,
+                    ContentType: file.mimetype,
+                });
 
-        await s3Client.send(command);
+                await s3Client.send(command);
 
-        return `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${key}`;
+                return `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${key}`;
+            }),
+        );
+
+        return uploadedUrls;
     }
 
     // Lấy tin nhắn của user hiện tại
