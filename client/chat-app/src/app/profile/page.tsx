@@ -20,15 +20,22 @@ import { useUser } from "@/hooks/use-getUserById"
 
 
 
-const messagePage = () => {
-    const [isOn, setIsOn] = useState(false);
+const ProfilePage = () => {
     const [isSetting, setSetting] = useState(false);
     const [userId, setUserId] = useState<string | null>(null);
+    const [photoURL, setPhotoURL] = useState<string | null>(null);
 
     useEffect(() => {
         const id = localStorage.getItem('_id');
         if (id) {
             setUserId(id);
+        }
+    }, []);
+
+    useEffect(() => {
+        const url = localStorage.getItem('photoURL');
+        if (url) {
+            setPhotoURL(url);
         }
     }, []);
 
@@ -38,17 +45,6 @@ const messagePage = () => {
     if (error) return <div>Error occurred: {error.message}</div>;
     if (!user) return <div>No user found.</div>;
 
-    const toggleSwitch = () => {
-        setIsOn(!isOn);
-    };
-
-    const fields = [
-        "Username",
-        "Email",
-        "Gender",
-        "Birthdate",
-        "Phone Number"
-    ];
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -75,14 +71,25 @@ const messagePage = () => {
                     <div className='insideContainer2'>
                         <div className='optionProfileContainer'>
                             <div className='pictureCircle'>
-                                <Image
-                                    className='avatar'
-                                    src="/images.jpg"
-                                    alt="Next.js logo"
-                                    layout="fill"
-                                    priority
-                                    style={{ objectFit: 'cover' }}
-                                />
+                                {photoURL ? (
+                                    <Image
+                                        className='avatar'
+                                        src={photoURL}
+                                        alt="User Avatar"
+                                        layout="fill"
+                                        priority
+                                        style={{ objectFit: 'cover' }}
+                                    />
+                                ) : (
+                                    <Image
+                                        className='avatar'
+                                        src="/images.jpg" // fallback nếu không có avatar
+                                        alt="Default Avatar"
+                                        layout="fill"
+                                        priority
+                                        style={{ objectFit: 'cover' }}
+                                    />
+                                )}
                             </div>
                             <span className='nameOption'>{user?.name}</span>
                             <span className='profileOption' onClick={() => setSetting(false)}>Personal Details</span>
@@ -142,4 +149,4 @@ const messagePage = () => {
     )
 }
 
-export default messagePage
+export default ProfilePage

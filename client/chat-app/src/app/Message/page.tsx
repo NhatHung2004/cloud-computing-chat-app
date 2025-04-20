@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import '@/styles/message.css';
 import { AppSidebar } from "@/components/app-sidebar";
@@ -19,36 +18,25 @@ import { useMessages } from "@/hooks/use-getMessage";
 import { useAllUsers } from "@/hooks/use-getAllUser";
 import { useSentMessages } from "@/hooks/use-getSentMessage";
 import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale'; // nếu muốn tiếng Việt
+import { vi } from 'date-fns/locale';
 import { sendMessageApi } from "@/lib/sendmessage";
 import { useRef } from 'react';
+import Image from 'next/image';
 
 
-
-// const userItems = Array.from({ length: 10 }, (_, index) => ({
-//     avatar: '/avatar.png',
-//     name: `Nguyen Van B ${index + 1}`,
-//     textMessage: 'ahjndbajdbjabdhjabdhjabdahjdb',
-//     time: '5 hour ago',
-// }));
-
-function useIsMobile() {
-    const [isMobile, setIsMobile] = React.useState(false);
-
-    React.useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
-
-    return isMobile;
+interface LatestMessage {
+    senderEmail: string;
+    receiverEmail?: string;
+    createdAt: string;
+    message?: string;
+    file?: string;
+    relatedEmail: string;
 }
 
 const MessagePage = () => {
-    const isMobile = useIsMobile();
-    const [selectedUser, setSelectedUser] = React.useState<number | null>(null);
 
+    const [isMobile, setIsMobile] = React.useState(false);
+    const [isConversationSelected, setIsConversationSelected] = useState(false);
     const [userId, setUserId] = useState<string | null>(null);
     const [userEmail, setUserEmail] = useState<string | null>(null);
 
@@ -58,6 +46,15 @@ const MessagePage = () => {
 
     const bottomRef = useRef<HTMLDivElement>(null);
     const [searchKeyword, setSearchKeyword] = useState('');
+
+    const { messages, error, isLoading, mutate: mutateMessages } = useMessages(userId || "");
+    const { sent_messages, error: sentM_Error, isLoading: sentM_Loading, mutate: mutateSentMessages } = useSentMessages(userId || "");
+
+    const { users, error: userError, isLoading: userLoading } = useAllUsers();
+    const [isSending, setIsSending] = useState(false);
+
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
 
 
@@ -75,27 +72,12 @@ const MessagePage = () => {
         }
     }, []);
 
-    const { messages, error, isLoading, mutate: mutateMessages } = useMessages(userId || "");
-    const { sent_messages, error: sentM_Error, isLoading: sentM_Loading, mutate: mutateSentMessages } = useSentMessages(userId || "");
-
-    const { users, error: userError, isLoading: userLoading } = useAllUsers();
-
-    const handleSend = async () => {
-
-        if (!selectedEmail) {
-            return;
-        }
-
-        const result = await sendMessageApi(selectedEmail, message);
-        if (result.success) {
-            setMessage('');
-            // Gọi mutate để revalidate cả 2 danh sách tin nhắn
-            mutateMessages();
-            mutateSentMessages();
-        } else {
-            console.error(result.error);
-        }
-    };
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
 
 
@@ -107,30 +89,71 @@ const MessagePage = () => {
 
 
 
+
     if (isLoading || userLoading || sentM_Loading) return <div>Loading...</div>;
     if (error || userError || sentM_Error) return <div>Error occurred: {error.message}</div>;
     if (!messages || !users || !sent_messages) return <div>No user found.</div>;
 
-    const emailToLatestMessage: { [email: string]: any } = {};
+    const emailToLatestMessage: Record<string, LatestMessage> = {};
 
     (messages ?? []).forEach((msg) => {
         const email = msg.senderEmail;
+        const entry: LatestMessage = { ...msg, relatedEmail: email };
         if (!emailToLatestMessage[email] || new Date(msg.createdAt) > new Date(emailToLatestMessage[email].createdAt)) {
-            emailToLatestMessage[email] = { ...msg, relatedEmail: email };
+            emailToLatestMessage[email] = entry;
         }
     });
 
     (sent_messages ?? []).forEach((msg) => {
         const email = msg.receiverEmail;
+        const entry: LatestMessage = { ...msg, relatedEmail: email };
         if (!emailToLatestMessage[email] || new Date(msg.createdAt) > new Date(emailToLatestMessage[email].createdAt)) {
-            emailToLatestMessage[email] = { ...msg, relatedEmail: email };
+            emailToLatestMessage[email] = entry;
         }
     });
 
     const allMessages = Object.values(emailToLatestMessage);
 
+    const handleSend = async () => {
+        if (isSending) return;
+        if (!selectedEmail) return;
 
+        try {
+            setIsSending(true);
+            if (selectedFile && message.trim()) {
+                const messageResult = await sendMessageApi(selectedEmail, message, selectedFile);
+                if (messageResult.success) {
+                    setMessage('');
+                    setSelectedFile(null);
+                    mutateMessages();
+                    mutateSentMessages();
+                }
+            }
+            else if (selectedFile && !message.trim()) {
+                const messageResult = await sendMessageApi(selectedEmail, "", selectedFile);
+                if (messageResult.success) {
+                    setMessage('');
+                    setSelectedFile(null);
+                    mutateMessages();
+                    mutateSentMessages();
+                }
+            }
 
+            else {
+                const messageResult = await sendMessageApi(selectedEmail, message, null);
+                if (messageResult.success) {
+                    setMessage('');
+                    mutateMessages();
+                    mutateSentMessages();
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Đã có lỗi xảy ra.");
+        } finally {
+            setIsSending(false);                             // ← kết thúc gửi
+        }
+    };
     // Hàm để tìm tên người dùng từ email
     const getUserNameByEmail = (email: string) => {
         const user = users.find(u => u.email === email);
@@ -139,12 +162,28 @@ const MessagePage = () => {
 
     //Lấy toàn bộ tin nhắn của người dùng hiện tại với người có email là "email"
     const getConversationWith = (email: string) => {
-        return [
-            //Lọc những tin nhắn được gửi từ người kia
+        const allMsgs = [
             ...messages.filter((msg) => msg.senderEmail === email),
-            //Lọc những tin nhắn người kia nhận được
-            ...sent_messages.filter((msg) => msg.receiverEmail === email)
-        ].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+            ...sent_messages.filter((msg) => msg.receiverEmail === email),
+        ];
+
+        const expandedMessages = allMsgs.flatMap((msg) => {
+            const common = {
+                senderEmail: msg.senderEmail,
+                createdAt: msg.createdAt,
+            };
+
+            const parts = [];
+            if (msg.message) {
+                parts.push({ ...common, type: 'text', content: msg.message });
+            }
+            if (msg.file) {
+                parts.push({ ...common, type: 'file', content: msg.file });
+            }
+            return parts;
+        });
+
+        return expandedMessages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     };
 
     const searchByKw = (kw: string) => {
@@ -154,6 +193,28 @@ const MessagePage = () => {
             return userName.includes(kw.toLowerCase());
         });
     };
+
+    const getFileName = (url: string | URL): string => {
+        try {
+            const urlObj = typeof url === 'string' ? new URL(url) : url;
+            const pathname = urlObj.pathname;
+            return pathname.split('/').pop() || 'File đính kèm';
+        } catch {
+            return 'File đính kèm';
+        }
+    };
+
+    const handleButtonClick = () => {
+        fileInputRef.current?.click(); // mở File Explorer
+    };
+
+    // Hàm này sẽ được gọi khi người dùng chọn file
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (file) {
+            setSelectedFile(file);
+        }
+    }
 
 
     return (
@@ -178,7 +239,7 @@ const MessagePage = () => {
 
                 {/* Nội dung message */}
                 <div className="containerMessage">
-                    {(!isMobile || !selectedUser) && (
+                    {(!isMobile || !isConversationSelected) && (
                         <div className="userContainer">
                             <div className="searchContainer">
                                 <input className="searhBox"
@@ -192,18 +253,25 @@ const MessagePage = () => {
                                         <div
                                             key={index}
                                             className="userItem"
-                                            onClick={() => setSelectedEmail(item.relatedEmail)}
+                                            onClick={() => {
+                                                setSelectedEmail(item.relatedEmail);
+                                                if (isMobile) {
+                                                    setIsConversationSelected(true);
+                                                }
+                                            }}
                                         >
-                                            {/* <Image
-                                                src={item.avatar}
-                                                alt={`${item.name} icon`}
-                                                width={40}
-                                                height={40}
-                                                className="userAvt"
-                                            /> */}
                                             <div className="textPart">
                                                 <span className="userName">{getUserNameByEmail(item.relatedEmail)}</span>
-                                                <span className="userMessage">{item.message}</span>
+                                                {item.message?.trim() && (
+                                                    <span className="userMessage">{item.message}</span>
+                                                )}
+                                                {item.file && (
+                                                    <div className='fileOutSide'>
+                                                        <span className="fileLinkOutSide">
+                                                            📁 1 file đính kèm
+                                                        </span>
+                                                    </div>
+                                                )}
                                             </div>
                                             <span className="userTime">
                                                 {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true, locale: vi })}
@@ -215,28 +283,74 @@ const MessagePage = () => {
                         </div>
                     )}
 
-                    {(!isMobile || selectedUser !== null) && (
+                    {(!isMobile || isConversationSelected) && (
                         <div className="messageContainer">
                             {selectedEmail ? (
                                 <>
-                                    <div className="headerText">{getUserNameByEmail(selectedEmail)}</div>
+                                    <div className="headerText">
+                                        {isMobile && (
+                                            <button
+                                                onClick={() => setIsConversationSelected(false)}
+                                                className="backButton"
+                                            >
+                                                ←
+                                            </button>
+                                        )}
+                                        {getUserNameByEmail(selectedEmail)}
+                                    </div>
                                     <div className="divider" />
                                     <div className="conversationBox">
                                         {getConversationWith(selectedEmail).map((msg, idx) => (
-                                            //nếu tin nhắn có email người gửi là người dùng hiện tại thì sẽ có className là "sent" ngược lại là "received"
-                                            <div key={idx} className={`messageBubble ${msg.senderEmail === userEmail ? 'sent' : 'received'}`}>
-                                                <div>{msg.message}</div>
+                                            <div
+                                                key={idx}
+                                                className={`messageBubble ${msg.senderEmail === userEmail ? 'sent' : 'received'} ${msg.type === 'file' ? 'fileMessage' : ''}`}
+                                            >
+                                                {msg.type === 'text' ? (
+                                                    <div>{msg.content}</div>
+                                                ) : (
+                                                    <div className="fileCard">
+                                                        <div className="fileInfo">📁
+                                                            <a href={msg.content} target="_blank" rel="noopener noreferrer" className="fileLink">
+                                                                {getFileName(msg.content)}
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                         <div ref={bottomRef} />
                                     </div>
+                                    <div className='file_Container2'>
+                                        {selectedFile && (
+                                            <p className="fileText">📁 {selectedFile.name}</p>
+                                        )}
+                                    </div>
                                     <div className='chatContainer'>
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            onChange={handleFileChange}
+                                            style={{ display: 'none' }}
+                                        />
+                                        <button className='attachButtonMP' onClick={handleButtonClick}>
+                                            <Image
+                                                className='btnIcon'
+                                                src="/paper-clip.png"
+                                                alt="Next.js logo"
+                                                width={25}
+                                                height={25}
+                                                priority
+                                            />
+                                        </button>
                                         <input className='chatInput'
                                             type="text"
                                             placeholder="Nhập tin nhắn..."
                                             value={message}
                                             onChange={(e) => setMessage(e.target.value)} />
-                                        <button className='sendButton' onClick={handleSend}>Gửi</button>
+                                        <button className='sendButton'
+                                            onClick={handleSend}
+                                            disabled={isSending}
+                                        >{isSending ? 'Sending...' : 'Send'}</button>
                                     </div>
                                 </>
                             ) : (
@@ -245,7 +359,7 @@ const MessagePage = () => {
                         </div>
                     )}
                 </div>
-            </SidebarInset>
+            </SidebarInset >
         </SidebarProvider >
     );
 };
