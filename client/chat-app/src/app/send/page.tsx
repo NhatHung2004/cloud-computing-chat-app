@@ -24,7 +24,7 @@ const SendPage = () => {
     const [toEmail, setToEmail] = useState('');
     const [message, setMessage] = useState('');
     const [userEmail, setUserEmail] = useState<string | null>(null);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [isSending, setIsSending] = useState(false);
     const { users, error: userError, isLoading: userLoading } = useAllUsers();
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -49,66 +49,40 @@ const SendPage = () => {
         if (!userEmailExists) {
             alert("Người dùng không tồn tại");
             return;
-        }
-
-        else if (userEmail === email) {
+        } else if (userEmail === email) {
             alert("Bạn không thể gửi tin nhắn cho chính mình");
-        }
-
-        //message.trim() trả về true nếu chuổi không rỗng và false nếu chuỗi rỗng
-        else if (!message.trim() && !selectedFile) {
-            alert("Vui lòng nhập tin nhắn hoặc đính kèm một tệp.");
+            return;
+        } else if (!message.trim() && selectedFiles.length === 0) {
+            alert("Vui lòng nhập tin nhắn hoặc đính kèm ít nhất một tệp.");
             return;
         }
 
         try {
             setIsSending(true);
-            if (selectedFile && message.trim()) {
-                const messageResult = await sendMessageApi(toEmail, message, selectedFile);
-                if (messageResult.success) {
-                    alert("Gửi tin nhắn thành công!");
-                    setMessage('');
-                    setToEmail('');
-                    setSelectedFile(null);
-                }
-            }
-            else if (selectedFile && !message.trim()) {
-                const messageResult = await sendMessageApi(toEmail, "", selectedFile);
-                if (messageResult.success) {
-                    alert("Gửi tin nhắn thành công!");
-                    setMessage('');
-                    setToEmail('');
-                    setSelectedFile(null);
-                }
-            }
-
-            else {
-                const messageResult = await sendMessageApi(toEmail, message, null);
-                if (messageResult.success) {
-                    alert("Gửi tin nhắn thành công!");
-                    setMessage('');
-                    setToEmail('');
-                }
+            const messageResult = await sendMessageApi(toEmail, message.trim(), selectedFiles);
+            if (messageResult.success) {
+                alert("Gửi tin nhắn thành công!");
+                setMessage('');
+                setToEmail('');
+                setSelectedFiles([]);
             }
         } catch (err) {
             console.error(err);
             alert("Đã có lỗi xảy ra.");
         } finally {
-            setIsSending(false);                             // ← kết thúc gửi
+            setIsSending(false);
         }
-
-
     }
 
     const handleButtonClick = () => {
         fileInputRef.current?.click(); // mở File Explorer
     };
 
-    // Hàm này sẽ được gọi khi người dùng chọn file
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0]
-        if (file) {
-            setSelectedFile(file);
+        const files = event.target.files;
+        if (files) {
+            const filesArray = Array.from(files);
+            setSelectedFiles(filesArray);
         }
     }
     return (
@@ -134,7 +108,7 @@ const SendPage = () => {
 
                 <div className='containerSend'>
                     <div className='insideContainerSend'>
-                        <div className='inputContainer'>
+                        <div className='inputContainerSend'>
                             <input type='text'
                                 className='inputEmail'
                                 placeholder='To : '
@@ -147,8 +121,22 @@ const SendPage = () => {
                                 onChange={(e) => setMessage(e.target.value)}
                             ></textarea>
                             <div className='file_Container'>
-                                {selectedFile && (
-                                    <p className="fileText">{selectedFile.name}</p>
+                                {selectedFiles.length > 0 && (
+                                    <div >
+                                        {selectedFiles.map((file, index) => (
+                                            <div key={index} className="fileItemWrapper2">
+                                                <div className="fileItem2">
+                                                    <span className="fileName2">📁 {file.name}</span>
+                                                    <button
+                                                        className="removeFileBtn2"
+                                                        onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== index))}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 )}
                             </div>
 
@@ -163,6 +151,7 @@ const SendPage = () => {
                             <input
                                 ref={fileInputRef}
                                 type="file"
+                                multiple
                                 onChange={handleFileChange}
                                 style={{ display: 'none' }}
                             />
