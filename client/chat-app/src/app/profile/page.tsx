@@ -93,7 +93,6 @@ const ProfilePage = () => {
                             </div>
                             <span className='nameOption'>{user?.name}</span>
                             <span className='profileOption' onClick={() => setSetting(false)}>Personal Details</span>
-                            <span className='profileOption' onClick={() => setSetting(true)}>Settings</span>
                         </div>
                         <div className='infoOptionContainer'>
                             <div className='infoOptionTitle'>

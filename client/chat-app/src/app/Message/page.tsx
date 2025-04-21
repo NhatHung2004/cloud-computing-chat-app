@@ -29,7 +29,7 @@ interface LatestMessage {
     receiverEmail?: string;
     createdAt: string;
     message?: string;
-    file?: string;
+    file?: string | string[];
     relatedEmail: string;
 }
 
@@ -53,8 +53,52 @@ const MessagePage = () => {
     const { users, error: userError, isLoading: userLoading } = useAllUsers();
     const [isSending, setIsSending] = useState(false);
 
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const fileTypeMap: Record<string, { icon: string; description: string; gradient: string }> = {
+        'doc|docx': {
+            icon: '/word.png',
+            description: 'Tài liệu Word',
+            gradient: 'linear-gradient(to right, white, #007BFF)'
+        },
+        'pdf': {
+            icon: '/pdf.png',
+            description: 'Tài liệu PDF',
+            gradient: 'linear-gradient(to right, white, #FF0000)'
+        },
+        'txt': {
+            icon: '/txt-file.png',
+            description: 'Tài liệu văn bản',
+            gradient: 'linear-gradient(to right, white, #808080)'
+        },
+        'xls|xlsx': {
+            icon: '/excel.png',
+            description: 'Tài liệu Excel',
+            gradient: 'linear-gradient(to right, white, #008000)'
+        },
+        'ppt|pptx': {
+            icon: '/powerpoint.png',
+            description: 'Tài liệu PowerPoint',
+            gradient: 'linear-gradient(to right, white, #FFA500)'
+        },
+    };
+
+    const defaultFileType = {
+        icon: '/default-file.png',
+        description: 'File đính kèm',
+        gradient: 'linear-gradient(to right, white, #CCCCCC)'
+    };
+
+    const getFileTypeInfo = (fileUrl: string) => {
+        for (const [extensions, info] of Object.entries(fileTypeMap)) {
+            const regex = new RegExp(`\\.(${extensions})$`, 'i');
+            if (regex.test(fileUrl)) {
+                return info;
+            }
+        }
+        return defaultFileType;
+    };
 
 
 
@@ -115,43 +159,27 @@ const MessagePage = () => {
     const allMessages = Object.values(emailToLatestMessage);
 
     const handleSend = async () => {
-        if (isSending) return;
-        if (!selectedEmail) return;
+        if (isSending || !selectedEmail) return;
 
         try {
             setIsSending(true);
-            if (selectedFile && message.trim()) {
-                const messageResult = await sendMessageApi(selectedEmail, message, selectedFile);
-                if (messageResult.success) {
-                    setMessage('');
-                    setSelectedFile(null);
-                    mutateMessages();
-                    mutateSentMessages();
-                }
-            }
-            else if (selectedFile && !message.trim()) {
-                const messageResult = await sendMessageApi(selectedEmail, "", selectedFile);
-                if (messageResult.success) {
-                    setMessage('');
-                    setSelectedFile(null);
-                    mutateMessages();
-                    mutateSentMessages();
-                }
-            }
+            const messageResult = await sendMessageApi(
+                selectedEmail,
+                message.trim(),
+                selectedFiles // Truyền mảng files
+            );
 
-            else {
-                const messageResult = await sendMessageApi(selectedEmail, message, null);
-                if (messageResult.success) {
-                    setMessage('');
-                    mutateMessages();
-                    mutateSentMessages();
-                }
+            if (messageResult.success) {
+                setMessage('');
+                setSelectedFiles([]);
+                mutateMessages();
+                mutateSentMessages();
             }
         } catch (err) {
             console.error(err);
             alert("Đã có lỗi xảy ra.");
         } finally {
-            setIsSending(false);                             // ← kết thúc gửi
+            setIsSending(false);
         }
     };
     // Hàm để tìm tên người dùng từ email
@@ -178,7 +206,13 @@ const MessagePage = () => {
                 parts.push({ ...common, type: 'text', content: msg.message });
             }
             if (msg.file) {
-                parts.push({ ...common, type: 'file', content: msg.file });
+                if (Array.isArray(msg.file)) {
+                    msg.file.forEach((fileUrl) => {
+                        parts.push({ ...common, type: 'file', content: fileUrl });
+                    });
+                } else if (typeof msg.file === 'string') {
+                    parts.push({ ...common, type: 'file', content: msg.file });
+                }
             }
             return parts;
         });
@@ -196,9 +230,19 @@ const MessagePage = () => {
 
     const getFileName = (url: string | URL): string => {
         try {
-            const urlObj = typeof url === 'string' ? new URL(url) : url;
+            // Xử lý trường hợp URL đã bị encode
+            const urlString = typeof url === 'string'
+                ? decodeURIComponent(url)
+                : decodeURIComponent(url.toString());
+
+            const urlObj = new URL(urlString);
             const pathname = urlObj.pathname;
-            return pathname.split('/').pop() || 'File đính kèm';
+
+            // Tách và lấy phần cuối cùng của pathname
+            const fileName = pathname.split('/').pop() || 'File đính kèm';
+
+            // Xử lý trường hợp fileName có chứa query params (ví dụ: ?version=123)
+            return fileName.split('?')[0];
         } catch {
             return 'File đính kèm';
         }
@@ -210,11 +254,12 @@ const MessagePage = () => {
 
     // Hàm này sẽ được gọi khi người dùng chọn file
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0]
-        if (file) {
-            setSelectedFile(file);
+        const files = event.target.files;
+        if (files) {
+            const filesArray = Array.from(files);
+            setSelectedFiles(filesArray); // Cập nhật state thành mảng files
         }
-    }
+    };
 
 
     return (
@@ -265,10 +310,10 @@ const MessagePage = () => {
                                                 {item.message?.trim() && (
                                                     <span className="userMessage">{item.message}</span>
                                                 )}
-                                                {item.file && (
+                                                {item.file && (Array.isArray(item.file) ? item.file.length > 0 : item.file.trim() !== '') && (
                                                     <div className='fileOutSide'>
                                                         <span className="fileLinkOutSide">
-                                                            📁 1 file đính kèm
+                                                            📁 File đính kèm
                                                         </span>
                                                     </div>
                                                 )}
@@ -308,27 +353,62 @@ const MessagePage = () => {
                                                 {msg.type === 'text' ? (
                                                     <div>{msg.content}</div>
                                                 ) : (
-                                                    <div className="fileCard">
-                                                        <div className="fileInfo">📁
-                                                            <a href={msg.content} target="_blank" rel="noopener noreferrer" className="fileLink">
-                                                                {getFileName(msg.content)}
-                                                            </a>
-                                                        </div>
+                                                    <div >
+                                                        {msg.content && (
+                                                            /\.(jpg|jpeg|png|gif|webp)$/i.test(msg.content) ? (
+                                                                <div className="fileInfo">
+                                                                    <a href={msg.content} target="_blank" rel="noopener noreferrer" className="fileLink">
+                                                                        <img src={msg.content} alt="Ảnh đính kèm" className="imagePreview" />
+                                                                    </a>
+                                                                </div>
+                                                            ) : (() => {
+                                                                const fileInfo = getFileTypeInfo(msg.content);
+                                                                return (
+                                                                    <div className="fileInfoNotImage" style={{ background: fileInfo.gradient }}>
+                                                                        <Image
+                                                                            src={fileInfo.icon}
+                                                                            alt={fileInfo.description}
+                                                                            width={24}
+                                                                            height={24}
+                                                                            className="fileIconNotImage"
+                                                                        />
+                                                                        <a href={msg.content} target="_blank" rel="noopener noreferrer" className="fileLinkNotImage">
+                                                                            {getFileName(msg.content)}
+                                                                        </a>
+                                                                    </div>
+                                                                );
+                                                            })()
+                                                        )}
                                                     </div>
                                                 )}
                                             </div>
                                         ))}
                                         <div ref={bottomRef} />
                                     </div>
-                                    <div className='file_Container2'>
-                                        {selectedFile && (
-                                            <p className="fileText">📁 {selectedFile.name}</p>
+                                    <div >
+                                        {selectedFiles.length > 0 && (
+                                            <div className="filePreview">
+                                                {selectedFiles.map((file, index) => (
+                                                    <div key={index} className="fileItemWrapper">
+                                                        <div className="fileItem">
+                                                            <span className="fileName">📁 {file.name}</span>
+                                                            <button
+                                                                className="removeFileBtn"
+                                                                onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== index))}
+                                                            >
+                                                                ×
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         )}
                                     </div>
                                     <div className='chatContainer'>
                                         <input
                                             ref={fileInputRef}
                                             type="file"
+                                            multiple
                                             onChange={handleFileChange}
                                             style={{ display: 'none' }}
                                         />
