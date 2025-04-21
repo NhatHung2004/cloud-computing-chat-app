@@ -22,7 +22,7 @@ export class MessageController {
         if (sendMessageDto.message) {
             messageData.message = sendMessageDto.message;
         }
-        if (files) {
+        if (files.length > 0) {
             const data = await this.messageService.uploadFile(files);
             if (!data) {
                 throw new Error("File upload failed");
