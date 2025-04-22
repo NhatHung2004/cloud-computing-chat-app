@@ -1,5 +1,5 @@
 import axios from 'axios';
-export const BASE_URL = 'https://cloud-computing-chat-app-production.up.railway.app';
+export const BASE_URL = 'http://localhost:3000';
 
 export const MESSAGE_ENDPOINTS = {
     all: '/messages',

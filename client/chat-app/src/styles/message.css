@@ -425,3 +425,13 @@
     border: 1px solid black;
     font-weight: bold;
 }
+
+.fileInfo.videoPreview {
+    border: none;
+}
+
+
+.videoPreview {
+    width: 400px;
+    border: 2px solid black;
+}

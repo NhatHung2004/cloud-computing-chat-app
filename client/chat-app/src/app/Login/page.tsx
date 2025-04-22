@@ -23,14 +23,14 @@ const LoginPage = () => {
             const photoURL = user.photoURL;
 
             const email = user.email;
-            const username = user.displayName;
+            const name = user.displayName;
 
             console.log('Email:', email);
-            console.log('Username:', username);
+            console.log('Username:', name);
 
             const res = await Apis.post(USER_ENDPOINTS.create, {
                 email,
-                username
+                name
             });
 
             //Những thứ của người dùng hiện tại 

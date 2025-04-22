@@ -82,6 +82,21 @@ const MessagePage = () => {
             description: 'Tài liệu PowerPoint',
             gradient: 'linear-gradient(to right, white, #FFA500)'
         },
+        'zip|rar|7z|tar|gz': {
+            icon: '/rar.png',
+            description: 'Tài liệu nén',
+            gradient: 'linear-gradient(to right, white, #800080)'
+        },
+        'mp3|wav|aac|flac': {
+            icon: '/audio.png',
+            description: 'Tài liệu âm thanh',
+            gradient: 'linear-gradient(to right, white, #FF0099)'
+        },
+        'js|ts|java|py|cpp|c|cs|html|css|json|xml|sql': {
+            icon: '/coding.png',
+            description: 'Mã nguồn',
+            gradient: 'linear-gradient(to right, white,rgb(221, 193, 32))'
+        }
     };
 
     const defaultFileType = {
@@ -355,10 +370,19 @@ const MessagePage = () => {
                                                 ) : (
                                                     <div >
                                                         {msg.content && (
-                                                            /\.(jpg|jpeg|png|gif|webp)$/i.test(msg.content) ? (
+                                                            /\.(jpg|jpeg|png|gif|webp|tiff|heic|tif|heif)$/i.test(msg.content) ? (
                                                                 <div className="fileInfo">
                                                                     <a href={msg.content} target="_blank" rel="noopener noreferrer" className="fileLink">
                                                                         <img src={msg.content} alt="Ảnh đính kèm" className="imagePreview" />
+                                                                    </a>
+                                                                </div>
+                                                            ) : /\.(mp4|webm|ogg|mov|avi|wmv|flv|mkv)$/i.test(msg.content) ? (
+                                                                <div className="fileInfo">
+                                                                    <a href={msg.content} target="_blank" rel="noopener noreferrer">
+                                                                        <video controls className="videoPreview">
+                                                                            <source src={msg.content} />
+                                                                            Trình duyệt của bạn không hỗ trợ video.
+                                                                        </video>
                                                                     </a>
                                                                 </div>
                                                             ) : (() => {
