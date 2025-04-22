@@ -1,5 +1,5 @@
-import { Controller, Post, Get, Body, Param, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, Post, Get, Body, Param, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { MessageService } from './message.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SendMessageDto } from 'src/dto/send-message.dto';
@@ -10,20 +10,20 @@ export class MessageController {
     constructor(private readonly messageService: MessageService) { }
 
     @Post()
-    @UseInterceptors(FileInterceptor('file'))
+    @UseInterceptors(FilesInterceptor('files'))
     @ApiOperation({ summary: "gửi tin nhắn", description: "lưu tin nhắn vào database" })
-    async sendMessage(@Body() sendMessageDto: SendMessageDto, @UploadedFile() file: Express.Multer.File) {
+    async sendMessage(@Body() sendMessageDto: SendMessageDto, @UploadedFiles() files: Express.Multer.File[]) {
         const messageData = {
             senderEmail: sendMessageDto.senderEmail,
             receiverEmail: sendMessageDto.receiverEmail,
             message: "",
-            file: "",
+            file: [] as string[],
         };
         if (sendMessageDto.message) {
             messageData.message = sendMessageDto.message;
         }
-        if (file) {
-            const data = await this.messageService.uploadFile(file);
+        if (files.length > 0) {
+            const data = await this.messageService.uploadFile(files);
             if (!data) {
                 throw new Error("File upload failed");
             }

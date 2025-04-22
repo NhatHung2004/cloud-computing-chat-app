@@ -13,7 +13,7 @@ class Message extends Document {
     message: string;
 
     @Prop({ required: false })
-    file: string;
+    file: string[];
 }
 
 const MessageSchema = SchemaFactory.createForClass(Message);
