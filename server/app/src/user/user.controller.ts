@@ -16,16 +16,16 @@ export class UserController {
         if (existingUser) {
             return {
                 _id: existingUser._id,
-                username: existingUser.name,
+                name: existingUser.name,
                 email: existingUser.email
             };
         }
 
         // Nếu chưa tồn tại thì tạo mới
-        const user = await this.userService.createUser(createUserDto.username, createUserDto.email);
+        const user = await this.userService.createUser(createUserDto.name, createUserDto.email);
         return {
             _id: user._id,
-            username: user.name,
+            name: user.name,
             email: user.email
         }
     }
