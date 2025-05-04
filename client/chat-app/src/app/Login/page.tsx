@@ -36,7 +36,7 @@ const LoginPage = () => {
             //Những thứ của người dùng hiện tại 
             const data = await res.data;
             localStorage.setItem('_id', data._id);
-            localStorage.setItem('username', data.username);
+            localStorage.setItem('username', data.name);
             localStorage.setItem('email', data.email);
             localStorage.setItem('photoURL', photoURL ? photoURL : '');
             console.log('User data saved:', localStorage.getItem('_id'), localStorage.getItem('username'), localStorage.getItem('email'));

@@ -72,7 +72,7 @@ const MessagePage = () => {
             description: 'Tài liệu văn bản',
             gradient: 'linear-gradient(to right, white, #808080)'
         },
-        'xls|xlsx': {
+        'xls|xlsx|csv': {
             icon: '/excel.png',
             description: 'Tài liệu Excel',
             gradient: 'linear-gradient(to right, white, #008000)'
@@ -87,32 +87,28 @@ const MessagePage = () => {
             description: 'Tài liệu nén',
             gradient: 'linear-gradient(to right, white, #800080)'
         },
-        'mp3|wav|aac|flac': {
-            icon: '/audio.png',
-            description: 'Tài liệu âm thanh',
-            gradient: 'linear-gradient(to right, white, #FF0099)'
-        },
         'js|ts|java|py|cpp|c|cs|html|css|json|xml|sql': {
             icon: '/coding.png',
             description: 'Mã nguồn',
             gradient: 'linear-gradient(to right, white,rgb(221, 193, 32))'
+        },
+        'unknown': { // New category for unidentified files
+            icon: '/folder.png',
+            description: 'File không xác định',
+            gradient: 'linear-gradient(to right, white,rgb(221, 15, 228))'
         }
     };
 
-    const defaultFileType = {
-        icon: '/default-file.png',
-        description: 'File đính kèm',
-        gradient: 'linear-gradient(to right, white, #CCCCCC)'
-    };
 
     const getFileTypeInfo = (fileUrl: string) => {
         for (const [extensions, info] of Object.entries(fileTypeMap)) {
+            if (extensions === 'unknown') continue;
             const regex = new RegExp(`\\.(${extensions})$`, 'i');
             if (regex.test(fileUrl)) {
                 return info;
             }
         }
-        return defaultFileType;
+        return fileTypeMap['unknown'];
     };
 
 
@@ -145,6 +141,10 @@ const MessagePage = () => {
             bottomRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [selectedEmail, messages, sent_messages, message]);
+
+    useEffect(() => {
+        setSelectedFiles([]);
+    }, [selectedEmail]);
 
 
 
@@ -385,6 +385,15 @@ const MessagePage = () => {
                                                                         </video>
                                                                     </a>
                                                                 </div>
+                                                            ) : /\.(mp3|wav|aac|flac|m4a)$/i.test(msg.content) ? (
+                                                                <div className="fileInfo">
+                                                                    <a href={msg.content} target="_blank" rel="noopener noreferrer">
+                                                                        <audio controls className="videoPreview audioPreview">
+                                                                            <source src={msg.content} />
+                                                                            Trình duyệt của bạn không hỗ trợ video.
+                                                                        </audio>
+                                                                    </a>
+                                                                </div>
                                                             ) : (() => {
                                                                 const fileInfo = getFileTypeInfo(msg.content);
                                                                 return (
@@ -397,7 +406,7 @@ const MessagePage = () => {
                                                                             className="fileIconNotImage"
                                                                         />
                                                                         <a href={msg.content} target="_blank" rel="noopener noreferrer" className="fileLinkNotImage">
-                                                                            {getFileName(msg.content)}
+                                                                            {fileInfo.description === 'File không xác định' ? 'File không xác định' : getFileName(msg.content)}
                                                                         </a>
                                                                     </div>
                                                                 );
